@@ -19,4 +19,21 @@ class FullNameTest extends TestCase
 
         $this->assertEquals('taro', $fullName->getFirstName());
     }
+
+
+    public function testEquals_等しい()
+    {
+        $name1 = new FullName('yamada', 'taro');
+        $name2 = new FullName('yamada', 'taro');
+
+        $this->assertTrue($name1->equals($name2));
+    }
+
+    public function testEquals_等しくない()
+    {
+        $name1 = new FullName('yamada', 'taro');
+        $name2 = new FullName('yamada', 'jiro');
+
+        $this->assertFalse($name1->equals($name2));
+    }
 }

@@ -41,4 +41,13 @@ class FullName
     {
         return $this->firstName;
     }
+
+    /**
+     * @param FullName $name
+     * @return bool
+     */
+    public function equals(FullName $name): bool
+    {
+        return $this == $name;
+    }
 }
