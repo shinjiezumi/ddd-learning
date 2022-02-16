@@ -2,8 +2,6 @@
 
 namespace App\Basic\ValueObject;
 
-use http\Exception\InvalidArgumentException;
-
 class ModelNumber
 {
     /**
@@ -31,15 +29,15 @@ class ModelNumber
     public function __construct(string $productCode, int $branch, int $lot)
     {
         if ($productCode === '') {
-            throw new InvalidArgumentException("invalid product code");
+            throw new \InvalidArgumentException("invalid product code");
         }
 
         if ($branch <= 0) {
-            throw new InvalidArgumentException("invalid branch");
+            throw new \InvalidArgumentException("invalid branch");
         }
 
         if ($lot <= 0) {
-            throw new InvalidArgumentException("invalid lot");
+            throw new \InvalidArgumentException("invalid lot");
         }
 
         $this->productCode = $productCode;
