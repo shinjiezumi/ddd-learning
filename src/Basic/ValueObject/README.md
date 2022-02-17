@@ -136,3 +136,34 @@ function doSomething(string $modelNumber) {
 
 `UserName`クラスは３文字未満のユーザー名を許可しないようになっており、この値オブジェクトを使い続ける限り、不正な値が存在することを防げる
 
+## 誤った代入を防ぐ
+
+例としてユーザーIDはシステムによって異なる。ユーザー名がそのままIDになったりメールアドレスなどの場合もある。 以下のようなコードでは、呼び出し元を確認する必要があり、IDの正当性が判断できない。
+コードの正しさを証明するために自己文書化を進めて、コードの正しさをコードで表現できるようにする。
+
+```php
+function createUser(string $name): User
+{
+    $user = new User();
+    $user->id = $name;
+    return $user;
+}
+
+class User
+{
+    public $id;
+}
+```
+
+`User`クラスのプロパティを値オブジェクトにすることで、型不一致となり不正な代入が発生しない。
+
+```php
+function createUser(string $name): User
+{
+   // TODO: PHP7.4で書き換える
+   $userId = new UserId("hoge");
+   $userName = new UserName("hoge");
+   $user = new User($userName, $userName);
+   return $user;
+} 
+```
