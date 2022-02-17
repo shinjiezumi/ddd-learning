@@ -7,7 +7,7 @@ class UserName
     /**
      * @var string $value
      */
-    private $value;
+    private string $value;
 
 
     /**

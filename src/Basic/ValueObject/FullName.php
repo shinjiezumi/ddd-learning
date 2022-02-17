@@ -8,12 +8,12 @@ class FullName
     /**
      * @var string 姓
      */
-    private $lastName;
+    private string $lastName;
 
     /**
      * @var string 名
      */
-    private $firstName;
+    private string $firstName;
 
 
     /**

@@ -7,36 +7,11 @@ class User
     /**
      * @var UserId $id ユーザーID
      */
-    private $id;
+    public UserId $id;
 
     /**
      * @var UserName $name ユーザー名
      */
-    private $name;
+    public UserName $name;
 
-    /**
-     * @param UserId $id
-     * @param UserName $name
-     */
-    public function __construct(UserId $id, UserName $name)
-    {
-        $this->id = $id;
-        $this->name = $name;
-    }
-
-    /**
-     * @return UserId
-     */
-    public function getId(): UserId
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return UserName
-     */
-    public function getName(): UserName
-    {
-        return $this->name;
-    }
 }

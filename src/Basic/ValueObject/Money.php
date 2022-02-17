@@ -10,12 +10,12 @@ class Money
     /**
      * @var float $amount 金額
      */
-    private $amount;
+    private float $amount;
 
     /**
      * @var string $currency 通貨
      */
-    private $currency;
+    private string $currency;
 
     /**
      * @return float

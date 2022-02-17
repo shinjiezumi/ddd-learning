@@ -160,10 +160,12 @@ class User
 ```php
 function createUser(string $name): User
 {
-   // TODO: PHP7.4で書き換える
    $userId = new UserId("hoge");
    $userName = new UserName("hoge");
-   $user = new User($userName, $userName);
+   
+   $user = new User();
+   $user->id = $userName; // エラー
+   
    return $user;
 } 
 ```

@@ -8,7 +8,7 @@ class UserId
     /**
      * @var string 値
      */
-    private $value;
+    private string $value;
 
     /**
      * @param string $value

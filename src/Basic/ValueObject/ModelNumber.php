@@ -7,17 +7,17 @@ class ModelNumber
     /**
      * @var string $productCode 製品コード
      */
-    private $productCode;
+    private string $productCode;
 
     /**
      * @var int $branch 枝番
      */
-    private $branch;
+    private int $branch;
 
     /**
      * @var int $lot ロット番号
      */
-    private $lot;
+    private int $lot;
 
     /**
      * コンストラクタ
