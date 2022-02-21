@@ -25,7 +25,7 @@ class UserId
     /**
      * @return string
      */
-    public function toString():string
+    public function toString(): string
     {
         return $this->value;
     }

@@ -20,6 +20,10 @@ class User
         $this->changeName($name);
     }
 
+    /**
+     * @param string $name
+     * @return void
+     */
     public function changeName(string $name)
     {
         if (mb_strlen($name) < 3) {
@@ -27,5 +31,14 @@ class User
         }
 
         $this->name = $name;
+    }
+
+    /**
+     * @param User $other
+     * @return bool
+     */
+    public function equals(User $other): bool
+    {
+        return $this->id->toString() === $other->id->toString();
     }
 }
