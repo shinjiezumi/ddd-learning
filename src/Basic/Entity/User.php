@@ -2,6 +2,9 @@
 
 namespace App\Basic\Entity;
 
+use App\Basic\ValueObject\UserId;
+use App\Basic\ValueObject\UserName;
+
 class User
 {
     /**
@@ -10,26 +13,22 @@ class User
     private UserId $id;
 
     /**
-     * @var string $name ユーザー名
+     * @var UserName $name ユーザー名
      */
-    private string $name;
+    private UserName $name;
 
-    public function __construct(UserId $userId, string $name)
+    public function __construct(UserId $userId, UserName $name)
     {
         $this->id = $userId;
         $this->changeName($name);
     }
 
     /**
-     * @param string $name
+     * @param UserName $name
      * @return void
      */
-    public function changeName(string $name)
+    public function changeName(UserName $name)
     {
-        if (mb_strlen($name) < 3) {
-            throw new \InvalidArgumentException("invalid name");
-        }
-
         $this->name = $name;
     }
 
@@ -40,5 +39,21 @@ class User
     public function equals(User $other): bool
     {
         return $this->id->toString() === $other->id->toString();
+    }
+
+    /**
+     * @return UserId
+     */
+    public function getId(): UserId
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return UserName
+     */
+    public function getName(): UserName
+    {
+        return $this->name;
     }
 }
