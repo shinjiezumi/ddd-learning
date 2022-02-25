@@ -19,4 +19,17 @@ class UserServiceTest extends TestCase
 
         $exists = $userService->exists($user);
     }
+
+    public function test__createUser_正常系()
+    {
+        $user = new User(new UserId('hoge'), new UserName('fuga'));
+
+        $userService = new UserService();
+        if ($userService->exists($user)) {
+            // エラー処理
+        }
+
+        // DB保存など
+
+    }
 }
