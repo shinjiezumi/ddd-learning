@@ -50,3 +50,66 @@ class UserService
 ただし、これは人による。
 
 「ユーザーの重複」という考えが、ドメインに基づくものであれば、入出力操作でもドメインサービスに記述することは問題ないと考える人もいる。（必要最低限の範囲で）
+
+# 物流システムにおけるドメインサービスの例
+
+物流システムでは、荷物を拠点から直接配送するのではなく、拠点から配送先の近くの拠点に輸送してから配送する。
+
+```mermaid
+flowchart LR
+    id1(物流拠点) -- 輸送(transport) --> id2(物流拠点) -- 配送(delivery) -->  id3(配送先)
+```
+
+## 物流拠点のふるまいとして定義する
+
+物流拠点はドメインの重要な概念でエンティティとして定義する
+
+```php 
+class PhysicalDistributionBase
+{
+    public function ship(Baggage $baggage): Baggage
+    {
+        // 略
+        return $baggage;
+    }
+
+    public function receive(Baggage $baggage): void
+    {
+        // 略
+    }
+}
+```
+
+物流拠点には出庫(ship)と入庫(receive)というふるまいがある。出庫と入庫はセットで取り扱われるべき活動。
+
+出庫していない架空の荷物を入庫してしまうといった誤りを防ぐ必要がある。
+
+こういった処理をエンティティに記述するのは違和感があるので、ドメインサービスとして定義する。
+
+```php 
+class TransportService
+{
+
+    public function transport(PhysicalDistributionBase $from, PhysicalDistributionBase $to, Baggage $baggage): void
+    {
+        $shippedBaggage = $from->ship($baggage);
+        $to->receive($shippedBaggage);
+
+        // 略
+    }
+}
+```
+
+## ドメインサービスの命名規則
+
+ドメインサービスの命名規則は以下３つに分けられる
+
+- ドメインの概念
+- ドメインの概念 + Service
+- ドメインの概念 + DomainService
+
+サービスはドメインの活動が対象となりやすく、動詞に基づいて命名されることが多い。
+
+どれも誤りではないが、2つ目が採用されることが多い
+
+
