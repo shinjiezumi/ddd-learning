@@ -3,16 +3,25 @@
 namespace App\Basic\DomainService;
 
 use App\Basic\Entity\User;
+use App\Basic\Repository\IUserRepository;
 
 class UserService
 {
+    private IUserRepository $userRepository;
+
+    public function __construct(IUserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     /**
      * @param User $user
      * @return bool
      */
     public function exists(User $user): bool
     {
-        // 重複を確認する処理(DB問い合わせ)を記述する。割愛
-        return true;
+        $user = $this->userRepository->find($user->getId());
+
+        return $user !== null;
     }
 }
