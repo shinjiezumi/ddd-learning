@@ -25,4 +25,12 @@ class UserRepository implements IUserRepository
     {
         // 略
     }
+
+    /**
+     * @param User $user
+     */
+    public function delete(User $user)
+    {
+        // 略
+    }
 }

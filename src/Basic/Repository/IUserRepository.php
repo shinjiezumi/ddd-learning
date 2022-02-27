@@ -10,5 +10,7 @@ interface IUserRepository
     public function find(UserId $userId): ?User;
 
     public function save(User $user);
+
+    public function delete(User $user);
 }
 
