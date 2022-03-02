@@ -3,6 +3,7 @@
 namespace App\Basic\ApplicationService;
 
 use App\Basic\DomainService\UserService;
+use App\Basic\DTO\UserData;
 use App\Basic\Entity\User;
 use App\Basic\Repository\IUserRepository;
 use App\Basic\ValueObject\UserId;
@@ -26,7 +27,12 @@ class UserApplicationService
     public function get(string $userId): ?User
     {
         $target = new UserId($userId);
-        return $this->userRepository->find($target);
+        $user = $this->userRepository->find($target);
+        if ($user === null) {
+            return null;
+        }
+
+        return new UserData($user->getId()->toString(), $user->getName()->toString());
     }
 
     /**
