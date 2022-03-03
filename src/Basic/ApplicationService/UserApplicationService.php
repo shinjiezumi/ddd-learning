@@ -22,9 +22,9 @@ class UserApplicationService
 
     /**
      * @param string $userId
-     * @return User|null
+     * @return UserData
      */
-    public function get(string $userId): ?User
+    public function get(string $userId): ?UserData
     {
         $target = new UserId($userId);
         $user = $this->userRepository->find($target);
