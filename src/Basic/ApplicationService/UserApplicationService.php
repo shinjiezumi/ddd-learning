@@ -32,7 +32,7 @@ class UserApplicationService
             return null;
         }
 
-        return new UserData($user->getId()->toString(), $user->getName()->toString());
+        return new UserData($user);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Basic\DTO;
 
+use App\Basic\Entity\User;
+
 class UserData
 {
     /**
@@ -14,10 +16,13 @@ class UserData
      */
     private string $name;
 
-    public function __construct(string $userId, string $name)
+    /**
+     * @param User $user
+     */
+    public function __construct(User $user)
     {
-        $this->id = $userId;
-        $this->name = $name;
+        $this->id = $user->getId()->toString();
+        $this->name = $user->getName()->toString();
     }
 
     /**
