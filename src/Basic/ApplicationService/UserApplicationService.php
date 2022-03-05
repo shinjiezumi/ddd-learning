@@ -52,6 +52,26 @@ class UserApplicationService
     }
 
     /**
+     * @param string $userId
+     * @param string $name
+     * @return void
+     */
+    public function update(string $userId, string $name)
+    {
+        $targetId = new UserId($userId);
+        $user = $this->userRepository->find($targetId);
+
+        if ($user === null) {
+            throw new \InvalidArgumentException('ユーザー情報がありません');
+        }
+
+        $userName = new UserName($name);
+        $user->changeName($userName);
+
+        $this->userRepository->save($user);
+    }
+
+    /**
      * @param User $user
      * @return bool
      */
