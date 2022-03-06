@@ -2,6 +2,7 @@
 
 namespace App\Basic\ApplicationService;
 
+use App\Basic\Command\UserUpdateCommand;
 use App\Basic\DomainService\UserService;
 use App\Basic\DTO\UserData;
 use App\Basic\Entity\User;
@@ -52,21 +53,24 @@ class UserApplicationService
     }
 
     /**
-     * @param string $userId
-     * @param string $name
+     * @param UserUpdateCommand $command
      * @return void
      */
-    public function update(string $userId, string $name)
+    public function update(UserUpdateCommand $command)
     {
-        $targetId = new UserId($userId);
+        $targetId = new UserId($command->getId());
         $user = $this->userRepository->find($targetId);
 
         if ($user === null) {
             throw new \InvalidArgumentException('ユーザー情報がありません');
         }
 
-        $userName = new UserName($name);
-        $user->changeName($userName);
+        $name = $command->getName();
+        if ($name !== null) {
+            $userName = new UserName($name);
+            $user->changeName($userName);
+        }
+        
 
         $this->userRepository->save($user);
     }

@@ -45,3 +45,23 @@
 ドメインオブジェクトを公開する方法に比べ、記述が増えてしまうデメリットがある。
 
 そこでドメインオブジェクトからDTOを自動生成するツールを作ると、デメリットが解消されるのでおすすめ。
+
+## ユーザー情報更新処理を作成する
+
+`UserApplicationService.update`、`UserUpdateCommand`参照
+
+ユーザーの属性が増えた際にシグネチャが変更されてしまうので、コマンドオブジェクトを利用すると属性変更にも強くなる。
+
+コマンドオブジェクトを作ることは間接的にアプリケーションサービスの処理を制御することと同義。
+
+```php
+// ユーザー名変更だけ行う
+$updateNameCommand = new UserUpdateCommand('id', 'name', null);
+$userApplicationService->update($updateNameCommand);
+
+// メールアドレス変更だけ行う
+$updateMailAddressCommand = new UserUpdateCommand('id', null, 'hoge@gmail.com');
+$userApplicationService->update($updateMailAddressCommand);
+```
+
+コマンドオブジェクトは処理のファサードともいえる。
