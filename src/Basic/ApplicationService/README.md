@@ -65,3 +65,9 @@ $userApplicationService->update($updateMailAddressCommand);
 ```
 
 コマンドオブジェクトは処理のファサードともいえる。
+
+## 退会処理を作成する
+
+`UserApplicationService.delte`参照
+
+退会処理はインスタンスの復元を行い、削除するだけのシンプルな処理。

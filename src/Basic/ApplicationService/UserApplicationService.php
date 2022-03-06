@@ -2,6 +2,7 @@
 
 namespace App\Basic\ApplicationService;
 
+use App\Basic\Command\UserDeleteCommand;
 use App\Basic\Command\UserUpdateCommand;
 use App\Basic\DomainService\UserService;
 use App\Basic\DTO\UserData;
@@ -73,5 +74,17 @@ class UserApplicationService
 
 
         $this->userRepository->save($user);
+    }
+
+    public function delete(UserDeleteCommand $command)
+    {
+        $targetId = new UserId($command->getId());
+        $user = $this->userRepository->find($targetId);
+
+        if ($user === null) {
+            return;
+        }
+
+        $this->userRepository->delete($user);
     }
 }
