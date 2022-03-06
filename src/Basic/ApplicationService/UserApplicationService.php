@@ -70,19 +70,8 @@ class UserApplicationService
             $userName = new UserName($name);
             $user->changeName($userName);
         }
-        
+
 
         $this->userRepository->save($user);
-    }
-
-    /**
-     * @param User $user
-     * @return bool
-     */
-    public function exists(User $user): bool
-    {
-        $user = $this->userRepository->find($user->getId());
-
-        return $user !== null;
     }
 }
