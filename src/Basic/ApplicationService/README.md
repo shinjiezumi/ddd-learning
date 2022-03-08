@@ -77,3 +77,63 @@ $userApplicationService->update($updateMailAddressCommand);
 アプリーケーションサービスはドメインオブジェクトのタスク調整に徹するべきで、ドメインのルールは記述しない。
 
 例えばドメインサービスに記述している重複確認を行うコードをアプリケーションサービスに記述してしまうと、同じようなコード(リポジトリからの復元)が点在してしまう。
+
+# アプリケーションサービスと凝集度
+
+凝集度はモジュールの責任範囲がどれだけ集中しているかを図る尺度。高めるとモジュールがひとつの事柄に集中することになり、堅牢性・信頼性・再利用性・可読性の観点から好ましいとされている。
+
+凝集度を図る方法としてLCOM(Lack of Cohesion in Methods)という計算式がある。
+
+これはすべてのインスタンス変数はすべてのメソッドで使われるべき、というもので、計算式はインスタンス変数とそれが利用されているメソッドの数から計算される。
+
+以下のLowCohesionクラスは凝集度が低いクラス。
+
+```php
+class LowCohesion
+{
+  private int $value1;
+  private int $value2;
+  private int $value3;
+  private int $value4;
+  
+  public function methodA()
+  {
+    return $this->value1 + $this->value2;
+  }
+
+  public function methodB()
+  {
+    return $this->value3 + $this->value4;
+  }
+}
+```
+
+`LowCohesion`クラスの`value1`は`methodA`で利用されているが、`methodB`では利用されておらず、`value1`と`methodB`は本質的に関係がない。
+
+これらを分離することで凝集度を高めれる。
+
+```php
+class HighCohesionA
+{
+  private int $value1;
+  private int $value2;
+  
+  public function methodA()
+  {
+    return $this->value1 + $this->value2;
+  }
+}
+
+class HighCohesionB
+{
+  private int $value3;
+  private int $value4;
+
+  public function methodB()
+  {
+    return $this->value3 + $this->value4;
+  }
+}
+```
+
+いずれのクラスも全てのフィールドがそのクラスに定義されているすべてのメソッドで利用されており、凝集度が高い状態。
