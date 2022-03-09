@@ -142,4 +142,6 @@ class HighCohesionB
 
 凝集度を高めるために、アプリケーションサービスも分割して凝集度を高める。
 
+ドメインサービスを利用しているのはユーザー登録処理だけなので、
+
 `UserRegisterService`、`UserDeleteService`参照

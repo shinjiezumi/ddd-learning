@@ -11,6 +11,9 @@ use App\Basic\Repository\IUserRepository;
 use App\Basic\ValueObject\UserId;
 use App\Basic\ValueObject\UserName;
 
+/**
+ * @deprecated
+ */
 class UserApplicationService
 {
     private UserService $userService;
