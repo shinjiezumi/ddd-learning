@@ -15,7 +15,7 @@ class UserDeleteService
         $this->userRepository = $userRepository;
     }
 
-    public function delete(UserDeleteCommand $command)
+    public function handle(UserDeleteCommand $command)
     {
         $targetId = new UserId($command->getId());
         $user = $this->userRepository->find($targetId);

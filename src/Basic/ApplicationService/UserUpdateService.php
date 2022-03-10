@@ -23,7 +23,7 @@ class UserUpdateService
      * @param UserUpdateCommand $command
      * @return void
      */
-    public function update(UserUpdateCommand $command)
+    public function handle(UserUpdateCommand $command)
     {
         $targetId = new UserId($command->getId());
         $user = $this->userRepository->find($targetId);

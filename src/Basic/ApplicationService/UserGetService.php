@@ -22,7 +22,7 @@ class UserGetService
      * @param string $userId
      * @return UserData
      */
-    public function get(string $userId): ?UserData
+    public function handle(string $userId): ?UserData
     {
         $target = new UserId($userId);
         $user = $this->userRepository->find($target);
