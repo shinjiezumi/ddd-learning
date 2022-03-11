@@ -15,6 +15,10 @@ class UserDeleteService
         $this->userRepository = $userRepository;
     }
 
+    /**
+     * @param UserDeleteCommand $command
+     * @return void
+     */
     public function handle(UserDeleteCommand $command)
     {
         $targetId = new UserId($command->getId());
