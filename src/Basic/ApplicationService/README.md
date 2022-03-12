@@ -145,3 +145,6 @@ class HighCohesionB
 ユーザー重複チェックでドメインサービスを利用しているのはユーザー登録処理だけなので、凝集度を高めるために分割する。
 
 `UserRegisterService`、`UserDeleteService`参照
+
+処理内容がクラス名で表現されるのでメソッド名はシンプルは表現に変更できる。
+
