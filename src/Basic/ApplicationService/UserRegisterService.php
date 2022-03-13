@@ -9,7 +9,7 @@ use App\Basic\Repository\IUserRepository;
 use App\Basic\ValueObject\UserId;
 use App\Basic\ValueObject\UserName;
 
-class UserRegisterService
+class UserRegisterService implements IUserRegisterService
 {
     private UserService $userService;
     private IUserRepository $userRepository;
@@ -24,7 +24,7 @@ class UserRegisterService
      * @param UserRegisterCommand $command
      * @return void
      */
-    public function handle(UserRegisterCommand $command)
+    public function handle(UserRegisterCommand $command): void
     {
         $user = new User(new UserId($command->getId()), new UserName($command->getName()));
 

@@ -9,6 +9,9 @@ use App\Basic\Repository\UserRepository;
 use App\Basic\ValueObject\UserId;
 use App\Basic\ValueObject\UserName;
 
+/**
+ * @deprecated ApplicationService参照
+ */
 class Program
 {
     private IUserRepository $userRepository;
