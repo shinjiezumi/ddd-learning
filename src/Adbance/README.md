@@ -81,3 +81,152 @@ class UserRepository implements IUserRepository
 インターフェースはそれを利用するクライアントが宣言するものであり、主導権はクライアントにある。
 
 インターフェースを宣言し、低レベルのモジュールはそのインターフェースにあわせて実装を行うことで、より重要な高次元の概念に主導権を握らせることが可能になる。
+
+## 依存関係をコントロールする
+
+`UserApplicationService`の依存関係をコントロールしてみる。
+
+テストはインメモリリポジトリ、リリースビルドはRDBリポジトリを利用するパターン。
+
+```php
+class UserApplicationService
+{
+    private IUserRepository $userRepository;
+    public function __construct()
+    {
+        $this->userRepository = new InMemoryUserRepository();
+    }
+}
+```
+
+上記の場合、フィールドは抽象型であるものの具象クラスを内部でインスタンス化しているため、`UserApplicationService`が`InMemoryUserRepository`に依存しているのでNG。
+
+### Service Locatorパターン
+
+Service Locatorパターンは、Service
+Locatorと呼ばれるオブジェクトに依存解決先となるオブジェクトを事前に登録しておき、インスタンスが必要となる各所でServiceLocatorを経由してインスタンスを取得するパターン。
+
+```php
+class UserApplicationService
+{
+    private IUserRepository $userRepository;
+    public function __construct()
+    {
+        // ServiceLocator経由でインスタンスを取得する
+        $this->userRepository = ServiceLocator.resolve(IUserRepository::class);
+    }
+}
+```
+
+返却される実際のインスタンスはスタートアップスクリプトなどで事前に登録しておく。
+
+```php
+ServiceLocator.register(IUserRepository::class, InMemoryUserRepositry::class);
+```
+
+リリースビルド時は以下のようにスタートアップスクリプトを変更することで、一括切り替えすることが可能。
+
+また、環境変数やコンフィグなどでスクリプトを切り替えるようしておくとわざわざ修正は不要になる。
+
+```php
+ServiceLocator.register(IUserRepository::class, UserRepositry::class);
+```
+
+ServiceLocatorパターンは大掛かりな仕掛けを用意する必要がないため導入しやすいのが特徴。
+
+ただし以下の理由からアンチパターンとも言われている。
+
+- 依存関係が外部から見えづらくなる
+- テストの維持が難しくなる
+
+#### 依存関係が外部からみえづらくなる
+
+クラス定義を見ただけでは、事前にServiceLocatorに対して依存解決の設定する必要があることがわかりづらい。
+
+コメントによる補足も、コメントは実際のコードと乖離することがある以上、解決策としては上策ではない。
+
+#### テストの維持が難しくなる
+
+例えば新たなフィールドが追加された際に、依存解決の登録を忘れてテストが破壊されることがある。
+
+```php
+class UserApplicationService 
+{
+    private IUserRepository $userRepository;
+    private IFooRepository $fooRepository; // 追加された
+    public function __construct()
+    {
+        $this->userRepository = ServiceLocator.resolve(IUserRepository::class);
+        $this->fooRepository = ServiceLocator.resolve(IFooRepository::class); // 未登録
+    }
+}
+```
+
+テストが破壊されること自体が問題ではなく、実行するまでわからないことが問題。
+
+開発者にとってテストは自身を助けるものだが、同時に途方もなく面倒なものでテストを維持するにはある程度の強制力が必要である。
+
+今回の依存関係の変更に自然と気づき、テストコードの変更を余儀なくさせる強制力をもたせることができなければ、テストは維持されなくなってしまう可能性がある。
+
+### IoC Containerパターン
+
+IoC Container(DI Container)の前にDependency Injectionパターンについて知る必要がある。 DIパターンは依存の注入という言われる。
+
+以下は`UserApplicationService`に`InMemoryUserRepository`に対する依存を注入(DI)している。
+
+```php
+$userRepository = new InMemoryUserRepository();
+$userApplicationService = new UserApplicationService($userRepository);
+```
+
+この形式はコンストラクタで依存するオブジェクトを注入しているのでコンストラクタインジェクションとも呼ばれる。
+
+DIパターンはこれ以外にもメソッドで注入するメソッドインジェクションなど多くのパターンが存在する。いずれも依存するモジュールを外部から注入することに変わりはない。
+
+DIパターンであれば依存関係の変更に強制力をもたせられる。
+
+```php
+class UserApplicationService 
+{
+    private IUserRepository $userRepository;
+    private IFooRepository $fooRepository;
+    public function __construct(IUserRepository $userRepository, IFooRepository $fooRepository)
+    {
+        $this->userRepository = $userRepository;
+        $this->fooRepository = $fooRepository
+    }
+}
+```
+
+`UserApplicationService`では新たな依存関係を追加するためのコンストラクタに引数が追加されるため、`UserApplicationService`
+をインスタンス化して実施しているテストはコンパイルエラーによって実行できなくなる。
+
+テストを実行するためにはまずコンパイルエラーを解消する必要があり、この強制力は大きい。
+
+便利な一方で、依存するオブジェクトのインスタンス化をあちこちに記述する必要があり、テストとプロダクションへの切り替えはその依存させたいリポジトリ全てを差し替える必要が出てしまう。
+
+この問題を解決するのがIoC Containerパターン。
+
+```php
+// IoC Container
+$serviceCollection = new ServiceCollection();
+// 依存関係の設定を登録する
+$serviceCollection.addTransient(IUserRepository::class, InMemoryUserRepository::class);
+$serviceCollection.addTransient(UserApplicationService::class);
+
+// インスタンスはIoC Container経由で取得する
+$provider = $serviceCollection.buildServiceProvider();
+$userApplicationService = $provider.getService(UserApplicationService::class);
+```
+
+IoC Containerは設定にしたがって依存の解決を行い、インスタンスを生成する。
+
+処理の流れとしては以下の通り。
+
+1. `$provier.getService()`が呼び出されIoC Containerは`UserApplicationService`を生成しようとする。
+2. `UserApplicationService`はコンストラクタで`IUserRepository`を必要とするので、内部的に依存関係を解決し、`IUserRepositry`を取得しようとする。
+3. `IUserRepository`は`InMemoryUserRepository`を利用するように登録されているので、`UserApplicationService`は`InMemoryUserRepository`
+   のインスタンスを受け取り、インスタンス化される
+
+IoC Containerに対する設定方法はServiceLocatorと同じくスタートアップスクリプトなどで行う。
+
