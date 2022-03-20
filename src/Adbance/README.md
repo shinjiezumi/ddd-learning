@@ -103,8 +103,8 @@ class UserApplicationService
 
 ### Service Locatorパターン
 
-Service Locatorパターンは、Service
-Locatorと呼ばれるオブジェクトに依存解決先となるオブジェクトを事前に登録しておき、インスタンスが必要となる各所でServiceLocatorを経由してインスタンスを取得するパターン。
+Service
+Locatorパターンは、ServiceLocatorと呼ばれるオブジェクトに依存解決先となるオブジェクトを事前に登録しておき、インスタンスが必要となる各所でServiceLocatorを経由してインスタンスを取得するパターン。
 
 ```php
 class UserApplicationService
