@@ -101,7 +101,7 @@ class UserApplicationService
 
 上記の場合、フィールドは抽象型であるものの具象クラスを内部でインスタンス化しているため、`UserApplicationService`が`InMemoryUserRepository`に依存しているのでNG。
 
-### Service Locatorパターン
+### ServiceLocatorパターン
 
 Service
 Locatorパターンは、ServiceLocatorと呼ばれるオブジェクトに依存解決先となるオブジェクトを事前に登録しておき、インスタンスが必要となる各所でServiceLocatorを経由してインスタンスを取得するパターン。
