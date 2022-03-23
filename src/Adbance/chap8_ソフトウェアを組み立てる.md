@@ -11,14 +11,12 @@
 依存関係の登録をIoC Containerを利用して行う。`ServiceCollection`はC#のライブラリで、言語にあわせてライブラリを使う。
 
 ```php
+$program = new Program();
+$program->startup();
+
 class Program
 {
     private static ServiceProvider $serviceProvider;
-    
-    public function main() 
-    {
-        self::startup();
-    }
     
     private static function startup :void
     {
@@ -32,6 +30,24 @@ class Program
         
         // 依存関係を行うプロバイダの生成
         $serviceProvider = $serviceCollection.buildServiceProvider();
+    }
+}
+```
+
+## メイン処理を実装する
+
+```php
+$program = new Program();
+$program->startup()
+$program->execute();
+
+class Program
+{
+    public function exeute() 
+    {
+        while (true) {
+            // TODO
+        }
     }
 }
 ```
