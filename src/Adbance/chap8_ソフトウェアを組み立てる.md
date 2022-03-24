@@ -43,7 +43,7 @@ $program->execute();
 
 class Program
 {
-    public function exeute() 
+    public function execute() 
     {
         while (true) {
             // TODO
