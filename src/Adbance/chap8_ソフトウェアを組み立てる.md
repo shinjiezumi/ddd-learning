@@ -46,6 +46,10 @@ class Program
     public function execute() 
     {
         while (true) {
+            echo "Input user name\n";
+            echo ">\n";
+            $input = trim(fgets(STDIN));
+             
             // TODO
         }
     }
