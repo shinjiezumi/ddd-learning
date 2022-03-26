@@ -18,7 +18,7 @@ class Program
 {
     private static ServiceProvider $serviceProvider;
     
-    private static function startup :void
+    public static function startup(): void
     {
         // IoC Container
         $serviceCollection = new ServiceCollection();
@@ -37,8 +37,8 @@ class Program
 ## メイン処理を実装する
 
 ```php
+Program::startup();
 $program = new Program();
-$program->startup()
 $program->execute();
 
 class Program
