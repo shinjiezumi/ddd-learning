@@ -21,7 +21,7 @@ class Program
     public static function startup(): void
     {
         // IoC Container
-        $serviceCollection = new ServiceCollection();
+        static::$serviceProvider = new ServiceCollection();
         
         // 依存関係の登録を行う
         $serviceCollection->addSingleton(IUserRepository::class, InMemoryUserRepository::class);
