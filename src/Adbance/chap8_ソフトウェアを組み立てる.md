@@ -50,6 +50,16 @@ class Program
             echo ">\n";
             $input = trim(fgets(STDIN));
              
+            $userApplicationService = self::$serviceProvider->getService(UserApplicationService::class);
+            $command = new UserRegisterCommand($input);
+            $userApplicationService->register($command); 
+
+            echo "------------------------\n";
+            echo "user created.\n";
+            echo "user name.\n";
+            echo "- {$input}\n";
+            echo "------------------------\n";
+             
             // TODO
         }
     }
