@@ -60,7 +60,13 @@ class Program
             echo "- {$input}\n";
             echo "------------------------\n";
              
-            // TODO
+            echo "continue(y)?.\n";
+            echo ">.\n";
+
+            $yesOrNo = trim(fgets(STDIN));
+            if ($yesOrNo !== 'y') {
+                break;
+            }
         }
     }
 }
