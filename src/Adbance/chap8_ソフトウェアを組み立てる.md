@@ -71,3 +71,6 @@ class Program
     }
 }
 ```
+
+IoC Container(ServiceProvider)から`UserApplicationService`を取得し、ユーザー登録処理を呼び出す。 インスタンスを直接生成せずにIoC
+Container経由でインスタンスを取得することで、スタートアップスクリプトに依存関係に関する記述を集中させることが可能。
