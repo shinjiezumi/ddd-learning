@@ -74,3 +74,33 @@ class Program
 
 IoC Container(ServiceProvider)から`UserApplicationService`を取得し、ユーザー登録処理を呼び出す。 インスタンスを直接生成せずにIoC
 Container経由でインスタンスを取得することで、スタートアップスクリプトに依存関係に関する記述を集中させることが可能。
+
+# MVCフレームワークに組み込む
+
+## 依存関係を設定する
+
+`割愛`
+
+## コントローラを実装する
+
+多くのMVCフレームワークはIoC Containerと連携しており、、IoC Containerに登録されたオブジェクトをコンストラクタで受け取ることができる。
+`UserApplicationService`を利用したい場合、以下のようにコンストラクタで受け取り、アクションから呼び出すように記述する。
+
+```php
+class UserController
+{
+    private UserApplicationService $userApplicationService;
+    
+    public function __construct(UserApplicationService $userApplicationService)
+    {
+        $this->userApplicationService = $userApplicationService;
+    }
+    
+    public function register(UserRegisterRequest $request)
+    {
+        $command = new UserregisterCommand($request->userName);
+        $this->userApplicationService->register($command);
+    }
+}
+```
+
