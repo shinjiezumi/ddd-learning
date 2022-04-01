@@ -98,7 +98,7 @@ class UserController
     
     public function register(UserRegisterRequest $request)
     {
-        $command = new UserregisterCommand($request->userName);
+        $command = new UserRegisterCommand($request->userName);
         $this->userApplicationService->register($command);
     }
 }
