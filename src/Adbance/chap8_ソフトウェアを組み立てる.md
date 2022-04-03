@@ -101,6 +101,37 @@ class UserController
         $command = new UserRegisterCommand($request->userName);
         $this->userApplicationService->register($command);
     }
+    
+    public function get(UserGetRequest $request) :UserData
+    {
+        $command = new UserGetCommand($request->userId);
+        return $this->userApplicationService->get($command);
+    }
+
+    public function update(UserUpdateRequest $request)
+    {
+        $command = new UserUpdateCommand($request->userId, $request->userName);
+        $this->userApplicationService->update($command);
+    }
+
+    public function delete(UserDeleteRequest $request)
+    {
+        $command = new UserDeleteCommand($request->userId);
+        $this->userApplicationService->delete($command);
+    }
 }
 ```
 
+いずれのアクションも、コントローラはフロントからのデータをビジネスロジックが必要とする入力データへ変換する作業に集中している。
+
+ビジネスロジックをアプリケーションサービスに寄せるようになると、結果としてシンプルなものになる。
+
+### コントローラの責務
+
+コントローラの責務は入力への変換で、コントローラはユーザーからの入力をモデルが要求するメッセージに変換し、モデルに伝えることが責務。
+
+もしもそれ以上のことをこなしているのであれば、ドメインの重要な知識やロジックがコントローラに漏れ出している可能性を疑うべき。
+
+# ユニットテストを書く
+
+割愛
