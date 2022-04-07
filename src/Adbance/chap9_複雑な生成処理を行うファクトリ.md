@@ -31,7 +31,7 @@ class User
 ```php
 interface IUserFactory
 {
-    function create(UserName $name) :User
+    function create(UserName $name): User
 }
 ```
 
