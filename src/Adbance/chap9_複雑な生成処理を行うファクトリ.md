@@ -37,3 +37,19 @@ interface IUserFactory
 
 ファクトリに定義されている`UserName`を引数に取り、`User`インスタンスを返却するメソッドが、ユーザー新規作成する際のコンストラクタの代わりとして利用される。
 
+```php
+class UserFactory implements IUserFactory
+{
+    function create(UserName $name): User
+    {
+        $seqId = xxx; // DBからシーケンス番号を取得
+        
+        $id = new UserId($seqId);
+        return new User($id, $name);
+    }
+}
+```
+
+インスタンス生成処理がファクトリに移設されたことで`User`クラスをインスタンス化する際には必ず外部からUserIdが引き渡されることになり、`User`クラスで行っていたidの採番処理が不要になる。
+
+その結果、DB接続処理をモデルに記述しなくて住むようになる。
