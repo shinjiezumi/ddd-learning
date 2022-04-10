@@ -53,3 +53,22 @@ class UserFactory implements IUserFactory
 インスタンス生成処理がファクトリに移設されたことで`User`クラスをインスタンス化する際には必ず外部からUserIdが引き渡されることになり、`User`クラスで行っていたidの採番処理が不要になる。
 
 その結果、DB接続処理をモデルに記述しなくて済むようになる。
+
+ファクトリを利用すると以下のようになる。
+
+```php
+class UserApplicationService
+{
+    private IUserFactory $userFactory;
+    private IUserRepository $userRepository;
+    private IUserService $userService;
+    
+    function register(UserRegisterCommand $command)
+    {
+        $userName = new UserName($command->name);
+        $user = $this->userFactory->create($userName);
+        
+        $this->userRepository->save($user);
+    }
+}
+```
