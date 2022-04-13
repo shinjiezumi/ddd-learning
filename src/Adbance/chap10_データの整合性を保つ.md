@@ -6,3 +6,27 @@
 
 データの整合性を保つために何かしらの戦略を練る必要がある。
 
+# ユニークキー制約による防衛
+
+ユニークキー制約は特定のカラムがユニークであることを保証する機能で、違反するレコードの挿入を行おうとするとエラーが発生する。
+
+データの整合性を守るために積極的に利用すべき機能。
+
+## ユニークキー制約を重複確認の主体としたときの問題点
+
+ユニークキー制約はソフトウェアが破綻する危険性を排除する有力な方法だが、使い方を誤るとコードの表現力が奪われる。
+
+ユニークキー制約さえ設定すれば、プログラムが不正を感知して終了するため重複確認をする必要がなくなり、以下のように簡略化するアイデアが浮かぶ。
+
+```php
+class UserApplicationService
+{
+    public function register(UserRegisterCommand $command)
+    {
+        $userName = new UserName($command->name);
+        
+        $user = $this->userFactory->create($userName);
+        $this->userRepository->save($user);
+    }
+}
+```
