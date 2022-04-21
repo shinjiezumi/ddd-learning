@@ -26,3 +26,30 @@
 
 これらのルールを踏まえて２つのユースケースを組み立てていく。
 
+# サークルの知識やルールをオブジェクトとして準備する
+
+まずはサークルを構成要素をコードとして表現していく。
+
+サークルはライフサイクルがあるオブジェクトなのでエンティティになる。
+
+ライフサイクルを表現するには識別子となる値が必要なので、値オブジェクトとして実装する
+
+```php
+class CircleId
+{
+    private string $value;
+
+    public function __construct(?string $value)
+    {
+        if (is_null($value))
+            throw new Exception("xxx");
+        
+        $this->value = $value;
+    }
+    
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+}
+```
