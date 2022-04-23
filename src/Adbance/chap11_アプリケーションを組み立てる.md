@@ -54,4 +54,33 @@ class CircleId
 }
 ```
 
-またサークルの名前を表す値オブジェクトも用意し、サークル名に存在するルールに従い異常値を検知したら例外を送出するようにする
+またサークルの名前を表す値オブジェクトも用意し、サークル名に存在するルールに従い異常値を検知したら例外を送出するようにする。
+
+```php
+class CircleName
+{
+    private string $value;
+
+    public function __construct(?string $value)
+    {
+        if (is_null($value))
+            throw new Exception("xxx");
+        if (mb_strlen($value) < 3)
+            throw new Exception("サークル名は3文字以上です");
+        if (mb_strlen($value) > 20)
+            throw new Exception("サークル名は20文字以下です");
+        
+        $this->value = $value;
+    }
+    
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+    
+    public function equals(CircleName $obj) bool
+    {
+        return $this->value === $obj->getValue();
+    }
+}
+```
