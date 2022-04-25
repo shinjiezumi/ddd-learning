@@ -89,3 +89,43 @@ class CircleName
 
 これらの値オブジェクトを利用してライフサイクルをもったオブジェクトであるサークルエンティティを用意する。
 
+```php
+class Circle
+{
+    private CircleId $id;
+    private CircleName $name;
+    private User $owner;
+    private array $members;
+    
+    public function __construct(CircleId $id, CircleName $name, User $owner, array $members)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->owner= $owner;
+        $this->members = $members;
+    }
+    
+    public function getId() :CircleId
+    {
+        return $this->id;
+    }
+    
+    public function getName() :CircleName
+    {
+        return $this->name;
+    }
+    
+    public function getOwner() :User
+    {
+        return $this->owner;
+    }
+    
+    public function getMembers() :array
+    {
+        return $this->members;
+    }
+}
+```
+
+サークルにはサークルのオーナーになるユーザーを表す`owner`と所属しているユーザーの一覧を表す`members`が定義されている。
+
