@@ -129,3 +129,15 @@ class Circle
 
 サークルにはサークルのオーナーになるユーザーを表す`owner`と所属しているユーザーの一覧を表す`members`が定義されている。
 
+次にサークルの永続化を行うために必要となるリポジトリを用意する。
+
+```php
+interface ICircleRepository
+{
+    public function Save(Circle $circle) :void;
+    public function FindById(CircleId $id) :Circle;
+    public function FindByName(CircleName $name) :Circle;
+}
+```
+
+ユースケースのロジックを組み立てる分には、このインターフェースを実装したクラスを定義することはまだ不要で、まずはロジックを組み立てることに集中する。
