@@ -141,3 +141,13 @@ interface ICircleRepository
 ```
 
 ユースケースのロジックを組み立てる分には、このインターフェースを実装したクラスを定義することはまだ不要で、まずはロジックを組み立てることに集中する。
+
+サークルを静止絵するファクトリも同じように準備する。
+
+```php
+interface ICircleFactory
+{
+    public function create(CircleName $name, User $owner);
+}
+
+```
