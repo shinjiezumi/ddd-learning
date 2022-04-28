@@ -149,5 +149,26 @@ interface ICircleFactory
 {
     public function create(CircleName $name, User $owner);
 }
+```
 
+サークルはユーザー名が重複していないかを確認する必要がある。
+
+重複に関するふるまいを`Circle`クラスに定義すると違和感が生じるため、ドメインサービスとして定義する
+
+```php
+class CircleService
+{
+    private ICircleRepository $circleRepository;
+    
+    public function __construct(ICircleRepository $circleRepository)
+    {
+        $this->circleRepository = $circleRepository;
+    }
+    
+    public function exists(Circle $circle) :bool
+    {
+        $duplicated = $this->circleRepository->find($circle->name);
+        return $duplicated != null;
+    }
+}
 ```
