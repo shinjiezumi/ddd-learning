@@ -176,3 +176,125 @@ class CircleService
 以上で値オブジェクトからドメインサービスまで一通りのオブジェクトの用意が終わり、必要最低限の準備が整った。
 
 これらを取りまとめてユースケースを実現していく。
+
+# ユースケースを組み立てる
+
+サークルを作成する処理を実装する。まずコマンドオブジェクトを準備する。
+
+```php
+class CircleCreateCommand
+{
+    public string $userId;
+    public string $name;
+    
+    public function __construct(string $userId, string $name)
+    {
+        $this->userId = $userId;
+        $this->name = $name;
+    }
+}
+```
+
+クライアントではこのコマンドオブジェクトを使ってサークルを作成するユーザー（サークルのオーナー）のIDと作成しようとしているサークルの名前を指定する。
+
+続いてコマンドを受け取って実際に処理を行うサークル作成処理を実装する。
+
+```php
+class CircleApplicationService
+{
+    private ICircleFactory $circleFactory;
+    private ICircleRepository $circleRepository;
+    private CircleService $circleService;
+    private IUserRepository $userRepository;
+   
+    public function __construct(ICircleFactory $circleFactory, ICircleRepository $circleRepository, CircleService $circleService, IUserRepository $userRepository)
+    {
+        $this->circleFactory = $circleFactory;
+        $this->circleRepository = $circleRepository;
+        $this->circleService = $circleService;
+        $this->userRepository = $userRepository;
+    }
+    
+    public function create(CircleCommand $command)
+    {
+        $ownerId = new UserId($command->userId);
+        $owner = $this->userRepository->find($ownerId);
+        if ($owner === null) {
+            throw new UserNotFoundException($ownerId, "サークルのオーナーとなるユーザーが見つかりませんでした");
+        }
+            
+        $name = new CircleName($command->name);
+        $circle = $this->circleFactory->create($name, $owner);    
+        
+        if ($this->circleService->exists($circle))
+        {
+            throw new CannotRegisterCircleException($circle, "サークルは既に存在しています");
+        }
+        
+        $this->circleRepository->save($circle);
+    }
+}
+```
+
+サークルを作成するためにまず最初にサークルのオーナーとなるユーザーを検索する。
+
+ユーザーの存在を確認できたらサークルを生成し、重複確認を行っている。重複しないことが確認できたらリポジトリに永続化を依頼し処理を完了する。
+
+次にこの`CircleApplicationService`にユーザーがサークルに参加するための処理を追加する。
+
+```php
+class CircleJoinCommand
+{
+    public string $userId;
+    public string $circleId;
+
+    public function __construct(string $userId, string $circleId)
+    {
+        $this->userId = $userId;
+        $this->circleId = $circleId;
+    }
+}
+```
+
+サークルに参加するユーザーのIDと参加先のサークルIDを指定することで、どのユーザーがどのサークルに参加するかを指定する。
+
+```php
+class CircleApplicationService
+{
+    // <snip>
+
+    public function join(CircleJoinCommand $command) 
+    {
+        $memberId = new UserId($command->userId);
+        $member = $this->userRepository->find($memberId);
+        if ($member === null) {
+            throw new UserNotFoundException($memberId, "ユーザーが見つかりませんでした");
+        }
+        
+        $circleId = new CircleId($command->circleId);
+        $circle = $this->circleRepository->find($circleId);
+        if ($circle === null) {
+            throw new CircleNotFoundExceptin($circleId, "サークルが見つかりませんでした");
+        }
+        
+        // サークルのオーナーを含めて30名未満か確認する
+        if ($circle->members->count >= 29) {
+            throw new CircleFullExceptin($circleId);
+        }
+        
+        // メンバーを追加する
+        $circle->members->add($member);
+        $this->circleRepository->save($circle);
+    }
+}
+```
+
+サークル参加処理ではサークルに参加しようとしているユーザーを検索し、参加先のサークルを検索する。
+
+そして「サークルに所属するユーザーの最大数はサークルのオーナー含めて30名まで」というルールに適合しているかを確認し、サークルのメンバーとしてユーザーを追加している。
+
+この実装にはひとつ問題があり、それは`if ($circle->members->count >= 29) {`の記述。
+
+例えばサークルの勧誘というユースケースが増えた場合、そこにも同様の判定が必要になりチェックする処理が点在してしまう。
+
+本来はドメインオブジェクトに記述すべきで、この問題を解決するのが`集約`という考え方。
