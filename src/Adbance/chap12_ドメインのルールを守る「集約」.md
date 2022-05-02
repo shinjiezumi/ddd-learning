@@ -39,3 +39,29 @@ TODO: 図
 
 ユーザー集約はサークル集約に含まれないため、ユーザー集約の情報を変更するような操作はサークル集約からは行わないが、サークルにメンバーとしてユーザーを追加するといった関連の操作はサークル集約が行う。
 
+```php
+$circle->members->add($member);
+```
+
+上記のようなコードは集約のルールに違反している。サークル集約の内部に含まれる`members`は集約ルートである`Circle`が操作すべきで、以下のように`Circle`オブジェクトにメソッドを追加することが推奨される。
+
+```php
+class Circle
+{
+    private CircleId $id;
+    private User $owner;
+    private array $members;
+    
+    public function join(User $member)
+    {
+        if (count($this->members) >= 29) {
+            throw new CircleFullException($this->id);
+        }
+        
+        $this->members[] = $member;
+    }
+}
+```
+
+`join`メソッドはユーザーをメンバーとして追加する際に上限チェックを行い、またメンバーを追加する際には`join`
+メソッドを呼び出す以外に方法はなく、結果としてメンバーを追加する際には上限チェックが行われ、30名までという不変条件は常に維持されることになる。
