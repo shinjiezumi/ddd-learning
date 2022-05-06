@@ -209,3 +209,89 @@ class CircleApplicationService
 }
 ```
 
+# 仕様とリポジトリを組み合わせる
+
+仕様は単独で取り扱う以外にも、リポジトリと組み合わせて活用する手法が存在する。 それはリポジトリに仕様を引き渡して、仕様に合致するオブジェクトを検索する手法。
+
+リポジトリには検索を行うメソッドが定義されるが検索処理の中には重要なルールを含むものが存在する。こうした検索処理をリポジトリのメソッドとして定義してしまうと、重要なルールはリポジトリの実装クラスに記述されてしまう。
+
+そういったとき、重要なルールを仕様オブジェクトとして定義し、リポジトリに引き渡せば重要なルールが実装クラスに漏れ出すことを防げる。
+
+## おすすめサークルに見る複雑な検索処理
+
+おすすめサークルの検索機能を例に考えてみる。 まずはおすすめサークルの定義を考える。
+
+- 直近1ヶ月以内に結成されたサークルである
+- 所属メンバー数が10名以上である
+
+これまでユーザーやサークルの検索を実質的に行ってきたのはリポジトリだったので、おすすめサークル検索機能も同様に定義してみる。
+
+```php
+interface ICircleRepository
+{
+    public function findRecommended(DateTime $now);
+}
+```
+
+`findRecommended`メソッドは引き渡された日付に従って最適なサークルを見繕ってくれるメソッドで、アプリケーションサービスはこれを利用する。
+
+```php
+class CircleApplicationService
+{
+    public function GetRecommend(CircleGetRecommendRequest $request): CircleGetRecommendResult
+    {
+        $recommendedCircle = $this->circleRepository->findRecommended($now);
+        return new CircleGetRecommendResult($recommendedCircle);
+    }
+}
+```
+
+処理自体は正しく動作するが、おすすめサークルの検索条件がリポジトリの実装クラスに依存してしまっている問題がある。
+
+おすすめサークルの条件は重要なルールで、リポジトリの実装クラスに左右されることは推奨されない。
+
+## 仕様による解決
+
+ドメインの重要な知識はできる限りドメインオブジェクトとして定義すべき。
+
+```php
+class CircleRecommendSpecification
+{
+    private DateTime $date;
+    
+    public function __construct(DateTime $date)
+    {
+        $this->date = $date;
+    }
+    
+    public isSatisfiedBy(Cricle $circle): bool 
+    {
+        if ($circle->countMembers() < 10) {
+            return false;
+        }
+
+       // イメージ        
+        return $circle->created > $this->date->add('1D');
+    }
+}
+```
+
+```php
+class CircleApplicationService
+{
+    private ICircleRepository $circleRepository;
+    
+    public function GetRecommend(CircleGetRecommendRequest $request): CircleGetRecommendResult
+    {
+        $recommendedCircleSpec = new CircleRecommendSpecification($now);
+        
+        $circles = $this->circleRepository->findAll();
+        // 仕様を使っておすすめサークルを検索。詳細割愛
+        // $recommendedCircle = xx
+        return new CircleGetRecommendResult($recommendedCircle);
+    }
+}
+```
+
+このようにすればおすすめサークルの条件をリポジトリに記述する必要がなくなる。
+
