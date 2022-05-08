@@ -55,14 +55,111 @@
 ユーザーインターフェースとアプリケーションを結びつけることさえできれば、WebフレームワークであってもCLIであっても良い。
 
 ### インフラストラクチャ層
+
 他の層を支える技術的基盤へのアクセスを提供するそうで、アプリケーションのためのメッセージ送信や、ドメインのための永続化を行うモジュールが含まれる。
 
 ### 解説
+
 ここに存在する原則は依存の方向が上から下ということで、上位のレイヤーは自身より下位のレイヤーに依存することが許される。逆方向の直接的な依存は許されない。
 
 ドメイン層からインフラストラクチャ層に依存の矢印が伸ばされているのは、ドメイン層のオブジェクトがインフラストラクチャ層のオブジェクトを取り扱うことを意味していない。
 
 白抜きの矢印で汎化が含まれていることがわかり、リポジトリのインターフェースと実装クラスの関係がこの矢印にあたる。
 
+### レイヤードアーキテクチャの実装サンプル(Laravelベース)
 
+#### プレゼンテーション層に所属するコントローラー
 
+```php
+class UserController extends Controller
+{
+    private UserApplicationService $userApplicationService;
+
+    public function __construct(UserApplicationService $userApplicationService)
+    {
+        $this->applicationService = $userApplicationService;
+    }
+    
+	public function list(Request $request): UserListResponse
+	{
+    	$users = $this->userApplicationService->getAll();
+    	return new UserListResponse($users);
+	}
+
+	public function index(UserGetRequest $request): UserGetResponse
+	{
+	    $command = new UserGetCommand($request->id);
+    	$user = $this->userApplicationService->get($command);
+    	return new UserGetResponse($user);
+	}
+
+	public function store(UserPostRequest $request): UserStoreResponse
+	{
+	    $command = new UserRegisterCommand($request->name);
+    	$user = $this->userApplicationService->register($command);
+    	return new UserStoreResponse($user);
+	}
+
+	public function update(UserUpdateRequest $request): void
+	{
+	    $command = new UserUpdateCommand($request->id, $request->name);
+    	$this->userApplicationService->update($command);
+	}
+	
+	public function destroy(UserDeleteCommand $request): void
+	{
+	    $command = new UserDeleteCommand($request->id);
+    	$this->userApplicationService->delete($command);
+	}
+}
+```
+
+HTTPリクエストという利用者からの入力データをアプリケーションに伝えるための変換を行うMVCフレームワークのコントローラーは、入力を解釈してアプリケーションに結びつけるプレゼンテーション層の住人。
+
+アプリケーションサービスのクライアントにもなっているので、依存の方向性も守られている。
+
+#### アプリケーション層に所属するアプリケーションサービス
+
+```php
+class UserApplicationService
+{
+    private IUserFactory $userFactory;
+    private IUserRepository $userRepository;
+    private UserService $userService;
+    
+    public function __construct(IUserFactory $userFactory, IUserRepository $userRepository, UserService $userService)
+    {
+        $this->userFactory = $userFactory;
+        $this->userRepository = $userRepository;
+        $this->userService = $userService;
+    }
+    
+    public function get(UserGetCommand $command): UserGetResult
+    {
+        $id = new UserId($command->id);
+        $user = $this->userRepository->find($id);
+        if ($user === null) {
+            throw new UserNotFoundException($id, "ユーザーが見つかりませんでした");
+        }
+        return new UserGetResult($user);
+    }
+        
+    public function getAll(): UserListResult
+    {
+        $users = $this->userRepository->findAll();
+        return new UserListResult($users);
+    }
+
+    public function register(UserRegisterCommand $command): UserRegisterResult
+    {
+        $name = new UserName($command->name);
+        $user = $this->userFactory->create($name);
+        if ($this->userService->exists($user)) {
+            throw new CannotRegisterUserException($user, 'ユーザーは既に存在しています');
+        }
+       
+        $result = $this->userRepository->save($user); 
+        return new UserRegisterResult($result);
+    }
+}
+```
