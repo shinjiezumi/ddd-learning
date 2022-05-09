@@ -161,5 +161,111 @@ class UserApplicationService
         $result = $this->userRepository->save($user); 
         return new UserRegisterResult($result);
     }
+
+    public function update(UserUpdateCommand $command): UserUpdateResult
+    {
+        $id = new UserId($command->id);
+        $user = $this->userRepository->find($id);
+        if ($user === null) {
+            throw new UserNotFoundException($id, "ユーザーが見つかりませんでした");
+        }
+
+        $name = new UserName($command->name);
+        $user->changeName($name);
+        if ($this->userService->exists($user)) {
+            throw new CannotRegisterUserException($user, 'ユーザーは既に存在しています');
+        }
+        
+        $result = $this->userRepository->save($user); 
+        return new UserRegisterResult($result);
+    }
+    
+    public function delete(UserDeleteCommand $command): void
+    {
+        $id = new UserId($command->id);
+        $user = $this->userRepository->find($id);
+        if ($user === null) {
+            return;
+        }
+
+        $result = $this->userRepository->delete($user);
+    }
 }
 ```
+
+アプリケーションサービスはアプリケーション層に所属するオブジェクトで、下位に位置するドメイン層とインフラストラクチャ層に対して依存している。
+
+アプリケーション層は問題を解決するためにドメインオブジェクトが実施するタスクの進行管理を行う。
+
+注意すべきはこのレイヤーにドメインのルールやふるまいを直接記述していはいけないことで、ビジネスの重要なルールはドメイン層に実装すべき。
+
+#### ドメイン層
+
+ユーザーのコード上の表現である`User`クラスやドメインサービスの`UserService`クラスはこの層に所属するオブジェクト
+
+```php
+class User
+{
+    private UserId $id;
+    private UserName $name;
+    private UserType $type;
+    
+    public function __construct(UserId $id, UserName $name, UserType $type)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->type = $type;    
+    }
+    
+    public function changeName(UserName $name): void
+    {
+        $this->name = $name;
+    }
+    
+    public function upgrade(): void
+    {
+        $this->type = UserType::Premium;
+    }
+
+    public function downgrade(): void
+    {
+        $this->type = UserType::Normal;
+    }
+}
+
+class UserService
+{
+    private IUserRepository $userRepository;
+    
+    public function __construct(IUserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+    
+    public function exists(User $user): bool
+    {
+        $duplicateUser = $this->userRepository->find($user->name);
+        return $duplicateUser !== null;
+    }
+}
+```
+
+ドメインモデルに表現するコードはすべてこの層に集中する。またドメインオブジェクトをサポートする役割のあるファクトリやリポジトリのインターフェースもこの層に含まれる。
+
+#### インフラストラクチャ
+
+インフラストラクチャ層のオブジェクトは永続化を実施するリポジトリ。
+
+```php
+class EFUserRepository implements IUserRepository
+{
+    public function find(UserId $id): ?User
+    {
+        return  User::find($id);
+    }
+    
+    // 割愛
+}
+```
+
+インフラストラクチャ層にはドメインオブジェクトを直接的に支える技術的機能の他に、アプリケーション層やプレゼンテーション層のための技術的機能を担うオブジェクトも含まれる
