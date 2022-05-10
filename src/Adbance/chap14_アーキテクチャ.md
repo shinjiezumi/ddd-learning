@@ -162,7 +162,7 @@ class UserApplicationService
         return new UserRegisterResult($result);
     }
 
-    public function update(UserUpdateCommand $command): UserUpdateResult
+    public function update(UserUpdateCommand $command): void
     {
         $id = new UserId($command->id);
         $user = $this->userRepository->find($id);
@@ -177,7 +177,6 @@ class UserApplicationService
         }
         
         $result = $this->userRepository->save($user); 
-        return new UserRegisterResult($result);
     }
     
     public function delete(UserDeleteCommand $command): void
