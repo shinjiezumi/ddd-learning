@@ -326,7 +326,7 @@ class UserApplicationService
 
 クリーンアーキテクチャは4つの同心円が特徴的な図によって説明されるアーキテクチャ。
 
-TODO: 図
+<img src="./06_クリーンアーキテクチャ.jpg">
 
 上図はビジネスルールをカプセル化したモジュールを中心に据えるというコンセプトで、図中の`Entities`はドメイン駆動設計のエンティティを示さない。
 
@@ -336,5 +336,87 @@ TODO: 図
 
 ヘキサゴナルアーキテクチャと目的としているところが同じ。大きな違いは、その実装の仕方が詳しく言及されているか否か。
 
-ヘキサゴナルアーキテクチャはポートとアダプタにより、付け外しを可能にするという方針だけがあったが、クリーンアーキテクチャには、コンセプトを実現する具体的な実装方針が明示されている。
+ヘキサゴナルアーキテクチャはポートとアダプタにより、付け外しを可能にするという方針だけがあったが、クリーンアーキテクチャにはコンセプトを実現する具体的な実装方針が明示されている。
+
+図右下の図の矢印は2種類存在していて、片方は普通の矢印、もう片方は白抜きの矢印で、これはそれぞれ依存と汎化を表している。
+
+<img src="./06_クリーンアーキテクチャ_2.jpg">
+
+`<I>`という記号もあり、汎化の矢印が伸びていることからモジュールがインターフェースであることを示す印になっている。Flow of controlはプログラムを実行した時の処理の流れを示している。
+
+### 実装する
+
+```php
+interface IUserGetInputPort
+{
+    public function handle(UserGetInputData $inputData): void;
+}
+```
+
+`InputPort`はクライアントのためのインターフェースでコントローラーから呼び出される。
+
+`Interactor`はこの`InputPort`を実装してユースケースを実現する。
+
+```php
+class UserGetInteractor implements IUserGetInputPort
+{
+    private IUserRepository $userRepository;
+    private IUserGetPresenter $presenter;
+    
+    public function __construct(IUserRepository $userRepository, IUserGetPresenter $presenter)
+    {
+        $this->userRepository = $userRepository;
+        $this->presenter = $presenter;
+    }
+    
+    public function handle(UserGetInputData $inputData)
+    {
+        $targetId = new UserId($inputData->userId);
+        $user = $this->userRepository->find($targetId);
+        
+        $this->presenter->output(new UserGetOutputData($user));
+    }
+} 
+```
+
+`UserGetInteractor`はちょうどアプリケーションサービスのメソッドをそのままクラスにしたもので、これまでのアプリケーションサービスと異なる点は、結果を出力する先が`presenter`と呼ばれるオブジェクトになっている点。
+
+`UserGetInteractor`は`IUserGetInputPort`を実装しているので、以下のようなスタブを作ることが可能。
+
+```php
+class StubUserGetInteractor implements IUserGetInputPort
+{
+    private IUserGetPresenter $presenter;
+    
+    public function __construct(IUserGetPresenter $presenter)
+    {
+        $this->presenter = $presenter;
+    }
+    
+    public function handle(UserGetInputData $inputData)
+    {
+        $user = new User("test-id", "test-name");
+        $this->presenter->output(new UserGetOutputData($user));
+    }
+}
+```
+
+クライアントは`IUserGetInputPort`越しに`Interactor`を呼び出すので、スタブに差し替えることでテストの実施が可能になる。
+
+このようにてスタビリティを随所で確保することもクリーンアーキテクチャの重要なテーマ。
+
+コンセプトでもっとも重要なことはビジネスルールをカプセル化したモジュールを中心に据え、依存の方向を絶対的に制御すること。これはヘキサゴナルアーキテクチャのコンセプトとほとんど同じ。
+
+いずれにせよ、ドメイン駆動設計の文脈上で最も重要なことはドメインの隔離を促すことで、全ての詳細がドメインに対して依存するようにすることは、ソフトウェアの方針を最も重要なドメインに握らせることを可能にする。
+
+# まとめ
+
+アーキテクチャには共通点があり、それは一度に多くのことを考え過ぎないことで、アーキテクチャは方針を示し、各所で考える範囲を狭めることで集中を促す。
+
+何をすべきかが明確になると、同時に考える余地もでてくる。アーキテクチャを採用することはより深いモデルの考察に時間を増やすことに寄与する。
+
+ドメイン駆動設計においてアーキテクチャは主役ではなく、ドメインの隔離を促すことができるのであればどのようなものを採用しても構わない。
+
+ソフトウェアにとって最も重要なことはシステムの利用者の必要を満たすことや問題の解決を実現することで、その本質に集中するために最適なアーキテクチャを選択することが重要。
+
 
