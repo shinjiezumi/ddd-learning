@@ -24,7 +24,37 @@
 
 同じ理由で仕様もドメインオブジェクトと同居する。多くなってきたら`Domain.Model.Circle.Specification`と切り出しても良い。
 
-`Domain.Service`パッケージはドメインサービスが配置されるパッケージ。サービスオブジェクトは複数種のドメインオブジェクトを操作することがあるので、中立的なパッケージに配置する。ただし、`UserService`は`User`クラスと密接に関わるサービスオブジェクトなので、`Domain.Model.User`パッケージに含める選択肢は考慮の余地がある。
+`Domain.Service`パッケージはドメインサービスが配置されるパッケージ。サービスオブジェクトは複数種のドメインオブジェクトを操作することがあるので、中立的なパッケージに配置する。ただし、`UserService`は`User`
+クラスと密接に関わるサービスオブジェクトなので、`Domain.Model.User`パッケージに含める選択肢は考慮の余地がある。
 
-残りの`Domain.Shared`パッケージは必ずしも必要になるわけではない。このパッケージに配置されている`ISpecification`は他のプロジェクトでも利用できるもので、共通のプロジェクトとして括って、`Domain`がそれに依存する形に仕立てることも可能。
+残りの`Domain.Shared`パッケージは必ずしも必要になるわけではない。このパッケージに配置されている`ISpecification`は他のプロジェクトでも利用できるもので、共通のプロジェクトとして括って、`Domain`
+がそれに依存する形に仕立てることも可能。
 
+### アプリケーションレイヤーのパッケージ構成
+
+コマンドオブジェクトなどを利用するために、アプリケーションサービスごとにパッケージを分ける。パッケージ内部のファイルが多くなりすぎる場合には直下にパッケージを作って整理することを考える。
+
+#### クリーンアーキテクチャの場合
+
+ユースケースごとに分けるので以下のような構成になる
+
+```
+Application
+├── Circle 
+├   ├── Create
+├   ├      ├─── ICircleCreateInputPort
+├   ├      ├─── CircleCreateInteractor
+├   ├      └─── CircleCreateInputData
+├   └── Get 
+├        ├─── ICircleGetInputPort
+├        ├─── CircleGetInteractor
+├        ├─── CircleGetInputData
+├        ├─── CircleGetOutputData
+├        └─── CircleData
+├
+└── User
+     └── Create
+          ├─── IUserCreateInputData
+          ├─── UserCreateInteractor
+          └─── UserCreateInputData
+```
