@@ -58,3 +58,7 @@ Application
           ├─── UserCreateInteractor
           └─── UserCreateInputData
 ```
+
+### インフラストラクチャのレイヤーのパッケージ構成
+
+インフラストラクチャはベースとなる技術基盤ごとにパッケージを分けているが、同一のパッケージにする選択肢もある。
